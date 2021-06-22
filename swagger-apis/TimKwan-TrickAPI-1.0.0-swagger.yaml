@@ -1,0 +1,312 @@
+swagger: '2.0'
+info:
+  description: Trick App API
+  version: 1.0.0
+  title: Trick App API
+  # put the contact info for your development or API team
+  contact:
+    email: tkwan@wpi.edu
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# tags are used for organizing operations
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: consumers
+  description: Operations available to regular consumers
+
+paths:
+  /login/{idUser}:
+    get:
+      tags:
+      - consumers
+      operationId: getUser
+      description: gets a user ID specified by user name
+      produces:
+      - application/json
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "200 response: User accessed"
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: "400 response: Invalid input"
+  /createNewUser:
+    post:
+      tags:
+      - consumers
+      operationId: createNewUser
+      description: Request to create a new user
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: NewName
+        schema: 
+          $ref: '#/definitions/NewUserRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: New User Created"
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: "400 response: Invalid input or User DNE"
+  /getAllTricks:
+    get:
+      tags:
+      - consumers
+      operationId: requestTricks
+      description: request for list of tricks
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: idUser
+        schema: 
+          $ref: '#/definitions/User'
+        required: true
+      responses:
+        200:
+          description: "200 response: Tricks retreived"
+          schema:
+            $ref: "#/definitions/ListOfTricks"
+        400:
+          description: "400 response: oops something happened"
+  /addCustomTrick:
+    post:
+      tags:
+      - consumers
+      operationId: addCustomTrick
+      description: Request to create a new trick
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: NewTrickRequest
+        schema: 
+          $ref: '#/definitions/NewTrickRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: New trick added"
+        400:
+          description: "400 response: Invalid input or Trick already exists"
+  /removeCustomTrick:
+    post:
+      tags:
+      - consumers
+      operationId: removeCustomTrick
+      description: Request to delete a new trick
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: RemoveTrickRequest
+        schema: 
+          $ref: '#/definitions/RemoveTrickRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: Trick removed"
+        400:
+          description: "400 response: Trick DNE or unable to delete"
+  /changeStatus:
+    post:
+      tags:
+      - consumers
+      operationId: changeStatus
+      description: Request to change the status of a trick
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: StatusChangeRequest
+        schema: 
+          $ref: '#/definitions/StatusChangeRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: Trick status changed"
+        400:
+          description: "400 response: unable to change status"
+  /addCombo:
+    post:
+      tags:
+      - consumers
+      operationId: addCombo
+      description: Request to add edge between tricks
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: AddComboRequest
+        schema: 
+          $ref: '#/definitions/AddComboRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: Combo Added"
+        400:
+          description: "400 response: unable to add combo"
+  /deleteCombo:
+    post:
+      tags:
+      - consumers
+      operationId: deleteCombo
+      description: Request to delete edge between tricks
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: DeleteComboRequest
+        schema: 
+          $ref: '#/definitions/DeleteComboRequest'
+        required: true
+      responses:
+        200:
+          description: "200 response: Combo Deleted"
+        400:
+          description: "400 response: unable to delete combo"
+  /generateCombo:
+    post:
+      tags:
+      - consumers
+      operationId: requestCombo
+      description: request for list of tricks in a combination
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: idUser
+        schema: 
+          $ref: '#/definitions/User'
+        required: true
+      responses:
+        200:
+          description: "200 response: Combo Generated"
+          schema:
+            $ref: "#/definitions/ListOfTricks"
+        400:
+          description: "400 response: oops something happened"
+definitions:
+  User:
+    type: object
+    required:
+    - idUser
+    - userName
+    properties:
+      idUser:
+        type: integer
+      userName:
+        type: string
+  ListOfTricks:
+    type: array
+    items:
+      $ref: '#/definitions/Trick'
+  Trick:
+    type: object
+    required:
+    - idTrick
+    - trickName
+    - trickDes
+    - customUser
+    properties:
+      idTrick:
+        type: integer
+      trickName:
+        type: string
+      trickDes:
+        type: string
+      customUser:
+        type: integer
+  NewUserRequest:
+    type: object
+    required:
+    - name
+    properties:
+      name:
+        type: string
+  NewTrickRequest:
+    type: object
+    required:
+    - trickName
+    - trickDes
+    - customUser
+    properties:
+      trickName:
+        type: string
+      trickDes:
+        type: string
+      customUser:
+        type: integer
+  RemoveTrickRequest:
+    type: object
+    required:
+    - idTrick
+    properties:
+      idTrick:
+        type: integer
+  StatusChangeRequest:
+    type: object
+    required:
+    - idUser
+    - idTrick
+    - status
+    properties:
+      idUser:
+        type: integer
+      idTrick:
+        type: integer
+      status:
+        type: integer
+  AddComboRequest:
+    type: object
+    required:
+    - comboFrom
+    - comboInto
+    properties:
+      comboFrom:
+        type: integer
+      comboInto:
+        type: integer
+  DeleteComboRequest:
+    type: object
+    required:
+    - comboFrom
+    - comboInto
+    properties:
+      comboFrom:
+        type: integer
+      comboInto:
+        type: integer
+
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /TimKwan/TrickAPI/1.0.0
+schemes:
+ - https

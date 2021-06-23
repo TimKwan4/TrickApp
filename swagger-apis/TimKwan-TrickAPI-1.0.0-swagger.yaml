@@ -76,7 +76,7 @@ paths:
       - in: body
         name: idUser
         schema: 
-          $ref: '#/definitions/User'
+          $ref: '#/definitions/GetAllTricksRequest'
         required: true
       responses:
         200:
@@ -224,6 +224,13 @@ definitions:
         type: integer
       userName:
         type: string
+  GetAllTricksRequest:
+    type: object
+    required:
+    - idUser
+    properties:
+      idUser:
+        type: integer
   ListOfTricks:
     type: array
     items:

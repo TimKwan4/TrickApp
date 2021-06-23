@@ -17,7 +17,7 @@ public class GetAllTricksHandler implements RequestHandler<GetAllTricksRequest, 
       	logger.log("Loading Java Lambda handler of GetAllTricksHandler");
 		logger.log(input.toString());
 		
-		AddFeedbackResponse response;
+		GetAllTricksResponse response;
 	
 		try {
 			if (isChoiceCompleted(input.getIdAlternative())) {

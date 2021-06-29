@@ -1,7 +1,7 @@
 package tkwan.http;
 
 public class GetAllTricksRequest {
-	public int idUser;
+	int idUser;
 	
 	public GetAllTricksRequest(int idUser) {
 		this.idUser = idUser;

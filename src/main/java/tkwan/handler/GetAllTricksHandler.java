@@ -1,11 +1,15 @@
 package tkwan.handler;
 
+import java.util.List;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
+import tkwan.db.TricksDAO;
 import tkwan.http.GetAllTricksRequest;
 import tkwan.http.GetAllTricksResponse;
+import tkwan.model.Trick;
 
 public class GetAllTricksHandler implements RequestHandler<GetAllTricksRequest, GetAllTricksResponse> {
 
@@ -20,32 +24,25 @@ public class GetAllTricksHandler implements RequestHandler<GetAllTricksRequest, 
 		GetAllTricksResponse response;
 	
 		try {
-			if (isChoiceCompleted(input.getIdAlternative())) {
-				response = new AddFeedbackResponse("Choice has already been completed", 400);
-			} else {
-				Feedback feedback = addFeedback(input.getMemberName(), input.getContents(), input.getIdAlternative());
-				response = new AddFeedbackResponse(feedback);
-			}
+			List<Trick> list = getListOfTricksFromRDS(input.getIdUser());
+			response = new GetAllTricksResponse(200, list);
 			
 		} catch (Exception e) {
-			response = new AddFeedbackResponse("Unable to add Feedback: " + input.getContents() + "(" + e.getMessage() + ")", 400);
+			response = new GetAllTricksResponse(400, "Unable to retrieve Tricks: " + input.toString() + "(" + e.getMessage() + ")");
 		}
 		return response;
     }
 
-	private boolean isChoiceCompleted(String idAlternative) throws Exception{
-		if (logger != null) logger.log("in feedback isChoiceCompleted");
-		AlternativesDAO adao = new AlternativesDAO();
-		String idChoice = adao.getIdChoice(idAlternative);
-		ChoicesDAO cdao = new ChoicesDAO();
-		return cdao.isChoiceCompleted(idChoice);
-	}
-
-	private Feedback addFeedback(String memberName, String contents, String idAlternative) throws Exception {
-		if (logger != null) logger.log("in createFeedback");
-		FeedbackDAO dao = new FeedbackDAO();
-		Feedback feedback = new Feedback(memberName, contents);
-		dao.addFeedback(feedback, idAlternative);
-		return feedback;
+	private List<Trick> getListOfTricksFromRDS(int idUser) throws Exception {
+		if (logger!=null) logger.log("in getListOfTricksFromRDS");
+		TricksDAO dao = new TricksDAO();
+		List<Trick> list;
+		try {
+			list = dao.getListOfTricks(idUser);
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -25,7 +25,8 @@ public class GetAllTricksHandler implements RequestHandler<GetAllTricksRequest, 
 	
 		try {
 			List<Trick> list = getListOfTricksFromRDS(input.getIdUser());
-			response = new GetAllTricksResponse(200, list);
+			if (list != null) {response = new GetAllTricksResponse(200, list);}
+			else {response = new GetAllTricksResponse(400, "Unable to retrieve Tricks: " + input.toString());}
 			
 		} catch (Exception e) {
 			response = new GetAllTricksResponse(400, "Unable to retrieve Tricks: " + input.toString() + "(" + e.getMessage() + ")");

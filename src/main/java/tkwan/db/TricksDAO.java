@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+
 import tkwan.model.Trick;
 
 public class TricksDAO {
@@ -21,7 +23,7 @@ public class TricksDAO {
 	public List<Trick> getListOfTricks(int idUser) throws Exception{
 		List<Trick> list = new ArrayList<>();
 		try {
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + "WHERE customUser IS NULL OR customUser=" + String.valueOf(idUser) + ";");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE customUser IS NULL OR customUser=" + String.valueOf(idUser) + ";");
 			ResultSet resultSet = ps.executeQuery();
 			
 			while (resultSet.next()) {

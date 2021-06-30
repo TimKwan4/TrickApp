@@ -37,6 +37,7 @@ public class GetAllTricksHandler implements RequestHandler<GetAllTricksRequest, 
 		if (logger!=null) logger.log("in getListOfTricksFromRDS");
 		TricksDAO dao = new TricksDAO();
 		List<Trick> list;
+		logger.log("about to get list");
 		try {
 			list = dao.getListOfTricks(idUser);
 			return list;

@@ -1,27 +1,17 @@
 package tkwan.http;
 
 public class AddCustomTrickRequest {
-	int idTrick;
 	String trickName;
 	String trickDes;
 	int customUser;
 	
-	public AddCustomTrickRequest(int idTrick, String trickName, String trickDes, int customUser) {
-		this.idTrick = idTrick;
+	public AddCustomTrickRequest(String trickName, String trickDes, int customUser) {
 		this.trickName = trickName;
 		this.trickDes = trickDes;
 		this.customUser = customUser;
 	}
 
 	public AddCustomTrickRequest() {}
-
-	public int getIdTrick() {
-		return idTrick;
-	}
-
-	public void setIdTrick(int idTrick) {
-		this.idTrick = idTrick;
-	}
 
 	public String getTrickName() {
 		return trickName;
@@ -49,6 +39,6 @@ public class AddCustomTrickRequest {
 
 	@Override
 	public String toString() {
-		return "AddCustomTrick( idTrick: " + idTrick + ")";
+		return "AddCustomTrick( trickName: " + trickName + ")";
 	}
 }

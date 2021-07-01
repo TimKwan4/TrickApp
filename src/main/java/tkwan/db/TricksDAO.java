@@ -40,14 +40,25 @@ public class TricksDAO {
             throw new Exception("Failed in getting Tricks: " + e.getMessage());
 		}
 	}
-	public void addCustomTrick(int idTrick, String trickName, String trickDes, int customUser) throws Exception {
+	public void addCustomTrick(String trickName, String trickDes, int customUser) throws Exception {
 		try {
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?, ?, ?, ?);");
-	        ps.setInt(1, idTrick);
+			//find the next id to take
+			PreparedStatement ps = conn.prepareStatement("SELECT MAX(idTrick) as maxID FROM " + tableName + ";");
+			ResultSet resultSet = ps.executeQuery();
+			int nextID = 0;
+			while (resultSet.next()) {
+				nextID = resultSet.getInt("maxID") + 1;
+            }
+			resultSet.close();
+			
+			ps = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?, ?, ?, ?);");
+	        ps.setInt(1, nextID);
 			ps.setString(2, trickName);
 			ps.setString(3, trickDes);
 	        ps.setInt(4, customUser);
 	        ps.execute();  
+	        
+	        ps.close();
             
 		} catch (Exception e) {
             throw new Exception("Failed in adding Trick: " + e.getMessage());

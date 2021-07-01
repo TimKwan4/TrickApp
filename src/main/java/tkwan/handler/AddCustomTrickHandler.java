@@ -21,7 +21,7 @@ public class AddCustomTrickHandler implements RequestHandler<AddCustomTrickReque
 		AddCustomTrickResponse response;
 	
 		try {
-			addCustomTrickIntoRDS(input.getIdTrick(), input.getTrickName(), input.getTrickDes(), input.getCustomUser());
+			addCustomTrickIntoRDS(input.getTrickName(), input.getTrickDes(), input.getCustomUser());
 			response = new AddCustomTrickResponse(200);
 			
 		} catch (Exception e) {
@@ -30,11 +30,11 @@ public class AddCustomTrickHandler implements RequestHandler<AddCustomTrickReque
 		return response;
     }
 
-	private void addCustomTrickIntoRDS(int idTrick, String trickName, String trickDes, int customUser) throws Exception {
+	private void addCustomTrickIntoRDS(String trickName, String trickDes, int customUser) throws Exception {
 		if (logger!=null) logger.log("in addCustomTrickIntoRDS");
 		TricksDAO dao = new TricksDAO();
 		try {
-			dao.addCustomTrick(idTrick, trickName, trickDes, customUser);
+			dao.addCustomTrick(trickName, trickDes, customUser);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Couldn't add custom Trick: " + e.getMessage());

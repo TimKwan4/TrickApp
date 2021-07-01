@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-
 import tkwan.model.Trick;
 
 public class TricksDAO {
@@ -40,6 +38,47 @@ public class TricksDAO {
             
 		} catch (Exception e) {
             throw new Exception("Failed in getting Tricks: " + e.getMessage());
+		}
+	}
+	public void addCustomTrick(int idTrick, String trickName, String trickDes, int customUser) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?, ?, ?, ?);");
+	        ps.setInt(1, idTrick);
+			ps.setString(2, trickName);
+			ps.setString(3, trickDes);
+	        ps.setInt(4, customUser);
+	        ps.execute();  
+            
+		} catch (Exception e) {
+            throw new Exception("Failed in adding Trick: " + e.getMessage());
+		}
+	}
+	public boolean deleteCustomTrick(int idTrick) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE idTrick=? AND customUser IS NOT NULL;");
+			ps.setInt(1, idTrick);
+			ResultSet resultSet = ps.executeQuery();
+			int count = 0;
+			while (resultSet.next()) {
+				count++;
+            }
+			resultSet.close();
+			
+			//nothing to delete
+			if (count == 0) {
+				return false;
+			}
+			
+			ps = conn.prepareStatement("DELETE FROM " + tableName + " WHERE idTrick=? AND customUser IS NOT NULL;");
+	        ps.setInt(1, idTrick);
+	        ps.execute();  
+            
+	        ps.close();
+	        
+	        return true;
+	        
+		} catch (Exception e) {
+            throw new Exception("Failed in deleting custom Trick: " + e.getMessage());
 		}
 	}
 	

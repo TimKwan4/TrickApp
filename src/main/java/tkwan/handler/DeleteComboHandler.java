@@ -21,8 +21,12 @@ public class DeleteComboHandler implements RequestHandler<DeleteComboRequest, De
 		DeleteComboResponse response;
 	
 		try {
-			deleteComboIntoRDS(input.getComboFrom(), input.getComboInto());
-			response = new DeleteComboResponse(200, input.getComboFrom(), input.getComboInto());
+			//if something is deleted, 200
+			if (deleteComboIntoRDS(input.getComboFrom(), input.getComboInto())) {
+				response = new DeleteComboResponse(200, input.getComboFrom(), input.getComboInto());
+			}else {
+				response = new DeleteComboResponse(400, "Nothing to delete in Combo: " + input.toString());
+			}
 			
 		} catch (Exception e) {
 			response = new DeleteComboResponse(400, "Unable to Delete Combo: " + input.toString() + "(" + e.getMessage() + ")");
@@ -30,11 +34,12 @@ public class DeleteComboHandler implements RequestHandler<DeleteComboRequest, De
 		return response;
     }
 
-	private void deleteComboIntoRDS(int comboFrom, int comboInto) throws Exception {
+	private boolean deleteComboIntoRDS(int comboFrom, int comboInto) throws Exception {
 		if (logger!=null) logger.log("in deleteComboIntoRDS");
 		ComboDAO dao = new ComboDAO();
 		try {
-			dao.deleteCombo(comboFrom, comboInto);
+			boolean isDeleted = dao.deleteCombo(comboFrom, comboInto);
+			return isDeleted;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Couldn't delete combo: " + e.getMessage());

@@ -51,5 +51,37 @@ public class UserDAO {
 		}
 	}
 	
+	public int getIDUser(String name) throws Exception {
+		try {
+			//figure out if the name exists
+			PreparedStatement ps = conn.prepareStatement("SELECT name FROM " + tableName + " WHERE name=?;");
+			ps.setString(1,name);
+			ResultSet resultSet = ps.executeQuery();
+			int count = 0;
+			while (resultSet.next()) {
+				count++;
+            }
+			//if count is = 0 it doesn't exists
+			if (count == 0) {
+				//-1 = user doesn't exists
+				return -1;
+			}
+			
+			//select id
+			ps = conn.prepareStatement("SELECT idUser FROM " + tableName + " WHERE name=?;");
+			ps.setString(1, name);
+			resultSet = ps.executeQuery();
+			int idUser = -1;
+			while (resultSet.next()) {
+				idUser = resultSet.getInt("isUser");
+            }
+			resultSet.close();
+	        ps.close();
+	        
+            return idUser;
+		} catch (Exception e) {
+            throw new Exception("Failed in fetching idUser: " + e.getMessage());
+		}
+	}
 }
 

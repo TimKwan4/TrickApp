@@ -21,8 +21,8 @@ public class CreateUserHandler implements RequestHandler<CreateUserRequest, Crea
 		CreateUserResponse response;
 	
 		try {
-			int id = createUserInRDS(input.getUserName());
-			response = new CreateUserResponse(200, new User(id, input.getUserName()));
+			int id = createUserInRDS(input.getName());
+			response = new CreateUserResponse(200, new User(id, input.getName()));
 			
 		} catch (Exception e) {
 			response = new CreateUserResponse(400, "Unable to Create user: " + input.toString() + "(" + e.getMessage() + ")");

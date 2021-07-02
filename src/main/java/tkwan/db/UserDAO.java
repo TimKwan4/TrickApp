@@ -17,9 +17,22 @@ public class UserDAO {
     
 	public int createUser(String name) throws Exception {
 		try {
-			//find the next id to take
-			PreparedStatement ps = conn.prepareStatement("SELECT MAX(idUser) as maxID FROM " + tableName + ";");
+			//figure out if the name already exists
+			PreparedStatement ps = conn.prepareStatement("SELECT name FROM " + tableName + " WHERE name=?;");
+			ps.setString(1,name);
 			ResultSet resultSet = ps.executeQuery();
+			int count = 0;
+			while (resultSet.next()) {
+				count++;
+            }
+			//if count is > 0 it already exists
+			if (count > 0) {
+				throw new Exception("User already exists");
+			}
+			
+			//find the next id to take
+			ps = conn.prepareStatement("SELECT MAX(idUser) as maxID FROM " + tableName + ";");
+			resultSet = ps.executeQuery();
 			int nextID = 0;
 			while (resultSet.next()) {
 				nextID = resultSet.getInt("maxID") + 1;

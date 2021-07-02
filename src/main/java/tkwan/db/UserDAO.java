@@ -73,7 +73,7 @@ public class UserDAO {
 			resultSet = ps.executeQuery();
 			int idUser = -1;
 			while (resultSet.next()) {
-				idUser = resultSet.getInt("isUser");
+				idUser = resultSet.getInt("idUser");
             }
 			resultSet.close();
 	        ps.close();

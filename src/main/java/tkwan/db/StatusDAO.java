@@ -20,10 +20,9 @@ public class StatusDAO {
     public Status updateStatus(int idUser, int idTrick, int status) throws Exception{
     	Status statusObj;
     	//check if the status entry already exists
-		PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE user=? AND trick=? AND status=?;");
+		PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE user=? AND trick=?;");
 		ps.setInt(1, idUser);
 		ps.setInt(2, idTrick);
-		ps.setInt(3, status);
 		ResultSet resultSet = ps.executeQuery();
 		int count = 0;
 		while (resultSet.next()) {

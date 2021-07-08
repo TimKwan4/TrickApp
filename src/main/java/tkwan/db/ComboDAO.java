@@ -2,6 +2,10 @@ package tkwan.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import tkwan.model.Combo;
 
 public class ComboDAO {
 	private java.sql.Connection conn;
@@ -54,6 +58,25 @@ public class ComboDAO {
 	        
 		} catch (Exception e) {
             throw new Exception("Failed in deleting combo: " + e.getMessage());
+		}
+	}
+	public List<Combo> getListOfCombos() throws Exception {
+		List<Combo> list = new ArrayList<>();
+		try {
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + ";");
+			ResultSet resultSet = ps.executeQuery();
+			
+			while (resultSet.next()) {
+				Combo c = new Combo(resultSet.getInt("comboFrom"), resultSet.getInt("comboInto"));
+                list.add(c);
+            }
+            resultSet.close();
+            ps.close();
+            return list;
+            
+            
+		} catch (Exception e) {
+            throw new Exception("Failed in getting Combos: " + e.getMessage());
 		}
 	}
 }

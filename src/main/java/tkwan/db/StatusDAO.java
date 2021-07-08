@@ -2,6 +2,9 @@ package tkwan.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import tkwan.model.Status;
 
@@ -54,4 +57,20 @@ public class StatusDAO {
 		
 		return statusObj;
     }
+
+	public List<Status> getListOfStatus(int idUser) throws Exception {
+		try {
+			ArrayList<Status> list = new ArrayList<Status>();
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE user=?;");
+			ps.setInt(1, idUser);
+			ResultSet resultSet = ps.executeQuery();
+			while(resultSet.next()) {
+				Status s = new Status(resultSet.getInt("user"), resultSet.getInt("trick"), resultSet.getInt("status"));
+				list.add(s);
+			}
+			return list;
+		}catch (Exception e){
+			throw new Exception("Failed in getting list of status: " + e.getMessage());
+		}
+	}
 }

@@ -11,7 +11,23 @@ window.onload = () => {
         .then(json=> {
             console.log(json)
 			if(json.statusCode==400) alert("Error: Please Try Another Name")
-			else document.querySelector('#nameInput').innerText = "You created a new user! "
+			else {login()}
         })
 	}
+	document.querySelector('#login').onclick = e=> {
+		login()
+	}
+}
+
+const login = () => {
+    fetch(url+'/login', {
+            method:'POST',
+            body:JSON.stringify({name:document.querySelector('#nameInput').value})
+        })
+        .then( response => response.json())
+        .then(json=> {
+            console.log(json)
+			if(json.statusCode==400) alert("Error: Name Doesn't Exist")
+			else {localStorage.setItem('userName', document.querySelector('#nameInput').value);localStorage.setItem('idUser', json.user.idUser);window.location.href='trickPage.html';}
+        })
 }

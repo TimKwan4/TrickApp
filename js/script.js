@@ -1,6 +1,9 @@
 const url = 'https://40dxits28f.execute-api.us-east-1.amazonaws.com/Alpha'
 window.onload = () => {
 	localStorage.clear()
+	document.querySelector('#login').disabled = true
+	document.querySelector('#createUser').disabled = true
+	document.querySelector('#nameInput').setAttribute('onkeyup','disableLogin()')
 	document.querySelector('#createUser').onclick = e=> {
 
 		fetch(url+'/createNewUser', {
@@ -16,6 +19,17 @@ window.onload = () => {
 	}
 	document.querySelector('#login').onclick = e=> {
 		login()
+	}
+}
+
+const disableLogin = () => {
+	if (document.querySelector('#nameInput').value.length == 0){ 
+		document.querySelector('#login').disabled = true
+		document.querySelector('#createUser').disabled = true
+	}
+	if (document.querySelector('#nameInput').value.length != 0){
+		document.querySelector('#login').disabled = false
+		document.querySelector('#createUser').disabled = false
 	}
 }
 

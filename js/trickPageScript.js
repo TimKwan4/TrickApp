@@ -3,6 +3,13 @@ window.onload = () => {
 	
 	updateTricks()
 	updateCombos()
+	updateStatus()
+	document.querySelector('#comboFromSelect').setAttribute('onclick','disableAddCombo()')
+	document.querySelector('#comboIntoSelect').setAttribute('onclick','disableAddCombo()')
+	document.querySelector('#trickNameArea').setAttribute('onkeyup','disableAddTrick()')
+	document.querySelector('#trickDescriptionArea').setAttribute('onkeyup','disableAddTrick()')
+	document.querySelector('#addButton').disabled = true
+	document.querySelector('#addComboButton').disabled = true
 	
 	document.querySelector('#welcome').innerText = "Welcome, " + localStorage.getItem('userName');
 	
@@ -34,6 +41,15 @@ window.onload = () => {
 	
 }
 
+const disableAddTrick = () => {
+	if (document.querySelector('#trickNameArea').value.length == 0 && document.querySelector('#trickDescriptionArea').value.length == 0) document.querySelector('#addButton').disabled = true
+	if (document.querySelector('#trickNameArea').value.length != 0 && document.querySelector('#trickDescriptionArea').value.length != 0) document.querySelector('#addButton').disabled = false
+}
+
+const disableAddCombo = () => {
+	if (document.querySelector('#comboFromSelect').value == "select a trick" && document.querySelector('#comboIntoSelect').value == "select a trick") document.querySelector('#addComboButton').disabled = true
+	if (document.querySelector('#comboFromSelect').value != "select a trick" && document.querySelector('#comboIntoSelect').value != "select a trick") document.querySelector('#addComboButton').disabled = false
+}
 const updateTricks = () => {
 		fetch(url+'/getAllTricks', {
         method:'POST',
@@ -98,12 +114,60 @@ const updateTricks = () => {
 			for (let butt of buttons) {
 			  butt.onclick = e=> {
 					const trick = getTrickFromID(butt.dataset.idtrick)
+					//clear deleteButton
+					const headerDiv = document.querySelector('#trickViewModalLabel')
+					while(headerDiv.firstElementChild){
+						headerDiv.removeChild(headerDiv.firstElementChild)
+					}
 					//set title and descriptions
-					document.querySelector('#trickViewModalLabel').innerText = trick.trickName
+					headerDiv.innerText = trick.trickName
 					document.querySelector('#trickDesBody').innerText = trick.trickDes
+					//add delete button if custom
+					if (trick.customUser != 0){
+						const deleteButton = document.createElement('button')
+						deleteButton.setAttribute('type','button')
+						deleteButton.setAttribute('class','btn badge badge-danger deleteTrickButton')
+						deleteButton.setAttribute('style','margin-left: 3px;margin-right: 3px;')
+						deleteButton.innerText = 'x'
+						headerDiv.appendChild(deleteButton)
+					}
+					//status Button
+					const statusButton = document.createElement('button')
+					statusButton.setAttribute('type','button')
+					statusButton.setAttribute('class','btn badge badge-warning changeStatusButton')
+					statusButton.setAttribute('style','margin-left: 3px;margin-right: 3px;')
+					const statusNum = getStatusFromStorage(trick.idTrick)
+					if (statusNum == 2) statusButton.innerText = "Mastered"
+					if (statusNum == 1) statusButton.innerText = "Working On"
+					else statusButton.innerText = "Not Learned"
+					headerDiv.appendChild(statusButton)
+					
 					setCombosInView(trick)			
 				}
 			}
+		}
+    })
+}
+
+const getStatusFromStorage = (idTrick) => {
+	const list = JSON.parse(localStorage.getItem('status'))
+	for (var i = 0; i < list.length; i++) {
+		if (idTrick == list[i].idTrick) return list[i].status
+	}
+	return 0
+}
+
+const updateStatus = () => {
+	fetch(url+'/getUserStatus', {
+        method:'POST',
+		body:JSON.stringify({idUser:localStorage.getItem('idUser')})
+    })
+    .then( response => response.json())
+    .then(json=> {
+        console.log(json)
+		if(json.statusCode==400) alert("Error: getting statuss failed")
+		else {
+			localStorage.setItem('status', JSON.stringify(json.status))
 		}
     })
 }
@@ -121,8 +185,8 @@ const setCombosInView = (trick) => {
 		const comboButton = document.createElement('button')
 		comboButton.setAttribute('type',"button")
 		comboButton.setAttribute('class',"btn badge badge-primary comboButtons")
-		comboButton.innerText = getTrickFromID(comboList[i].comboInto).trickName + " x"
 		comboButton.setAttribute('style','margin-left: 5px;margin-right: 5px;')
+		comboButton.innerText = getTrickFromID(comboList[i].comboInto).trickName + " x"
 		comboDiv.appendChild(comboButton)
 	}
 }
@@ -137,8 +201,8 @@ const getComboIntos = (id) => {
 }
 
 const updateCombos = () => {
-	fetch(url+'/getListOfCombos ', {
-            method:'GET',
+	fetch(url+'/getListOfCombos', {
+            method:'GET'
         })
         .then( response => response.json())
         .then(json=> {

@@ -79,8 +79,29 @@
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary">Send message</button>
+	        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapseAddCombo" aria-expanded="false" aria-controls="collapseAddCombo">Add Combo</button>
 	      </div>
+			<!-- Collapsable add combo -->
+			<div class="collapse bg-secondary" id="collapseAddCombo">
+				<div class="card card-body text-dark">
+				Combo From:
+				<br>
+			    <select class="form-control" id="comboFromSelect">
+				  <option>select a trick</option>
+				  <option>trick</option>
+				</select>
+				<br>
+				Combo Into:
+				<br>
+				<select class="form-control" id="comboIntoSelect">
+				  <option>select a trick</option>
+				  <option>trick</option>
+				</select>
+				<br>
+				<br>
+				<button type="button" class="btn btn-success" id="addComboButton" data-toggle="collapse" data-target="#collapseAddCombo" aria-expanded="false" aria-controls="collapseAddCombo">Add</button>
+			  </div>
+			</div>
 	    </div>
 	  </div>
 	</div>

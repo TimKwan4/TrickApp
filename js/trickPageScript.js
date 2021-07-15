@@ -13,32 +13,70 @@ window.onload = () => {
 	
 	document.querySelector('#welcome').innerText = "Welcome, " + localStorage.getItem('userName');
 	
-	document.querySelector('#addButton').onclick = e=> {
-		fetch(url+'/addCustomTrick', {
+	setUpAddCustomTrick()
+	fillComboTricks()
+}
+
+const setAddCombo = () => {
+	document.querySelector('#addComboButton').onclick = e=> {
+		fetch(url+'/addCombo', {
             method:'POST',
-            body:JSON.stringify({trickName:document.querySelector('#trickNameArea').value, trickDes:document.querySelector('#trickDescriptionArea').value, customUser:localStorage.getItem('idUser')})
+            body:JSON.stringify({comboFrom:document.querySelector('#trickViewModalLabel').dataset.idTrick, comboInto:document.querySelector('#comboIntoSelect').dataset.idTrick})
         })
         .then( response => response.json())
         .then(json=> {
             console.log(json)
-			if(json.statusCode==400) alert("Error")
+			if(json.statusCode==400) alert("Error: adding combo Failed")
 			else {
-				//loading gif just in case
-				const trickDiv = document.getElementById('listOfTricksDiv')
-				//clear tricks
-				while(trickDiv.firstChild){
-					trickDiv.removeChild(trickDiv.firstChild)
-				}
-				const loading = document.createElement('img')
-				loading.setAttribute('src','/img/loading.gif')
-				loading.setAttribute('alt','Loading')
-				trickDiv.appendChild(loading)
-				
-				updateTricks()
+				//update combos, combo list
+				updateCombos()
+				setCombosInView()
 			}
         })
 	}
-	
+}
+
+const fillComboTricks = () => {
+	const comboIntoDiv = document.getElementById('comboIntoSelect')
+	while(comboIntoDiv.firstChild){
+		comboIntoDiv.removeChild(comboIntoDiv.firstChild)
+	}
+	//add options
+	const list = JSON.parse(localStorage.getItem('tricks'))
+	for (var i = 0; i < list.length; i++) {
+		const trick = document.createElement('option')
+		trick.setAttribute('data-idTrick',list[i].idTrick)
+		trick.innerText = list[i].trickName
+		comboIntoDiv.appendChild(trick)
+	}
+}
+
+const setUpAddCustomTrick = () => {
+	document.querySelector('#addButton').onclick = e=> {
+	fetch(url+'/addCustomTrick', {
+        method:'POST',
+        body:JSON.stringify({trickName:document.querySelector('#trickNameArea').value, trickDes:document.querySelector('#trickDescriptionArea').value, customUser:localStorage.getItem('idUser')})
+    })
+    .then( response => response.json())
+    .then(json=> {
+        console.log(json)
+		if(json.statusCode==400) alert("Error")
+		else {
+			//loading gif just in case
+			const trickDiv = document.getElementById('listOfTricksDiv')
+			//clear tricks
+			while(trickDiv.firstChild){
+				trickDiv.removeChild(trickDiv.firstChild)
+			}
+			const loading = document.createElement('img')
+			loading.setAttribute('src','/img/loading.gif')
+			loading.setAttribute('alt','Loading')
+			trickDiv.appendChild(loading)
+			
+			updateTricks()
+		}
+    })
+}
 }
 
 const disableAddTrick = () => {
@@ -119,6 +157,7 @@ const updateTricks = () => {
 					while(headerDiv.firstElementChild){
 						headerDiv.removeChild(headerDiv.firstElementChild)
 					}
+					headerDiv.setAttribute('data-idTrick', trick.idTrick)
 					//set title and descriptions
 					headerDiv.innerText = trick.trickName
 					document.querySelector('#trickDesBody').innerText = trick.trickDes

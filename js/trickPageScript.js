@@ -4,7 +4,6 @@ window.onload = () => {
 	updateTricks()
 	updateCombos()
 	updateStatus()
-	document.querySelector('#comboFromSelect').setAttribute('onclick','disableAddCombo()')
 	document.querySelector('#comboIntoSelect').setAttribute('onclick','disableAddCombo()')
 	document.querySelector('#trickNameArea').setAttribute('onkeyup','disableAddTrick()')
 	document.querySelector('#trickDescriptionArea').setAttribute('onkeyup','disableAddTrick()')
@@ -14,14 +13,14 @@ window.onload = () => {
 	document.querySelector('#welcome').innerText = "Welcome, " + localStorage.getItem('userName');
 	
 	setUpAddCustomTrick()
-	fillComboTricks()
+	setAddCombo()
 }
 
 const setAddCombo = () => {
 	document.querySelector('#addComboButton').onclick = e=> {
 		fetch(url+'/addCombo', {
             method:'POST',
-            body:JSON.stringify({comboFrom:document.querySelector('#trickViewModalLabel').dataset.idTrick, comboInto:document.querySelector('#comboIntoSelect').dataset.idTrick})
+            body:JSON.stringify({comboFrom:document.querySelector('#trickViewModalLabel').dataset.idtrick, comboInto:getIdFromNameCombo(document.querySelector('#comboIntoSelect').value)})
         })
         .then( response => response.json())
         .then(json=> {
@@ -30,10 +29,18 @@ const setAddCombo = () => {
 			else {
 				//update combos, combo list
 				updateCombos()
-				setCombosInView()
+				setCombosInView(getTrickFromID(document.querySelector('#trickViewModalLabel').dataset.idtrick))
 			}
         })
 	}
+}
+
+const getIdFromNameCombo = (trickName) => {
+	const selectDiv = document.querySelector('#comboIntoSelect')
+	for (var i = 0; i < selectDiv.children.length; i++) {
+		if (trickName == selectDiv.children[i].innerText) return selectDiv.children[i].dataset.idtrick
+	}
+	return -1
 }
 
 const fillComboTricks = () => {
@@ -42,6 +49,9 @@ const fillComboTricks = () => {
 		comboIntoDiv.removeChild(comboIntoDiv.firstChild)
 	}
 	//add options
+	const buffer = document.createElement('option')
+	buffer.innerText = "select a trick"
+	comboIntoDiv.appendChild(buffer)
 	const list = JSON.parse(localStorage.getItem('tricks'))
 	for (var i = 0; i < list.length; i++) {
 		const trick = document.createElement('option')
@@ -85,8 +95,8 @@ const disableAddTrick = () => {
 }
 
 const disableAddCombo = () => {
-	if (document.querySelector('#comboFromSelect').value == "select a trick" && document.querySelector('#comboIntoSelect').value == "select a trick") document.querySelector('#addComboButton').disabled = true
-	if (document.querySelector('#comboFromSelect').value != "select a trick" && document.querySelector('#comboIntoSelect').value != "select a trick") document.querySelector('#addComboButton').disabled = false
+	if (document.querySelector('#comboIntoSelect').value == "select a trick") document.querySelector('#addComboButton').disabled = true
+	if (document.querySelector('#comboIntoSelect').value != "select a trick") document.querySelector('#addComboButton').disabled = false
 }
 const updateTricks = () => {
 		fetch(url+'/getAllTricks', {
@@ -186,6 +196,8 @@ const updateTricks = () => {
 			}
 		}
     })
+	//after you update the tricks, fill the combo tricks
+	fillComboTricks()
 }
 
 const getStatusFromStorage = (idTrick) => {

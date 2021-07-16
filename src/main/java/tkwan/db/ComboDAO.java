@@ -20,7 +20,21 @@ public class ComboDAO {
     }
 	public void addCombo(int comboFrom, int comboInto) throws Exception{
 		try {
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?, ?);");
+			//check if the combo already exists
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE comboFrom=? AND comboInto=?;");
+			ps.setInt(1, comboFrom);
+			ps.setInt(2, comboInto);
+			ResultSet resultSet = ps.executeQuery();
+			int count = 0;
+			while (resultSet.next()) {
+				count++;
+            }
+			resultSet.close();
+			if (count > 0) {
+				throw new Exception("Combo Already Exists");
+			}
+			
+			ps = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?, ?);");
 	        ps.setInt(1, comboFrom);
 			ps.setInt(2, comboInto);
 	        ps.execute();  

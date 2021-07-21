@@ -15,8 +15,7 @@ window.onload = () => {
 	setUpAddCustomTrick()
 	setAddCombo()
 }
-
-const setAddCombo = () => {
+function setAddCombo() {
 	document.querySelector('#addComboButton').onclick = e=> {
 		fetch(url+'/addCombo', {
             method:'POST',
@@ -24,18 +23,18 @@ const setAddCombo = () => {
         })
         .then( response => response.json())
         .then(json=> {
-            console.log(json)
 			if(json.statusCode==400) alert("Error: adding combo Failed")
 			else {
-				//update combos, combo list
-				updateCombos()
+				//update combos in storage, then ui
+				let newString = localStorage.getItem('combos').substring(0,localStorage.getItem('combos').length-1)+",{\"comboFrom\":"+ document.querySelector('#trickViewModalLabel').dataset.idtrick +",\"comboInto\":"+ getIdFromNameCombo(document.querySelector('#comboIntoSelect').value) +"}]"
+				localStorage.setItem('combos',newString)
 				setCombosInView(getTrickFromID(document.querySelector('#trickViewModalLabel').dataset.idtrick))
 			}
         })
 	}
 }
 
-const getIdFromNameCombo = (trickName) => {
+function getIdFromNameCombo(trickName) {
 	const selectDiv = document.querySelector('#comboIntoSelect')
 	for (var i = 0; i < selectDiv.children.length; i++) {
 		if (trickName == selectDiv.children[i].innerText) return selectDiv.children[i].dataset.idtrick
@@ -43,7 +42,7 @@ const getIdFromNameCombo = (trickName) => {
 	return -1
 }
 
-const fillComboTricks = () => {
+function fillComboTricks(){
 	const comboIntoDiv = document.getElementById('comboIntoSelect')
 	while(comboIntoDiv.firstChild){
 		comboIntoDiv.removeChild(comboIntoDiv.firstChild)
@@ -61,7 +60,7 @@ const fillComboTricks = () => {
 	}
 }
 
-const setUpAddCustomTrick = () => {
+function setUpAddCustomTrick(){
 	document.querySelector('#addButton').onclick = e=> {
 	fetch(url+'/addCustomTrick', {
         method:'POST',
@@ -69,7 +68,6 @@ const setUpAddCustomTrick = () => {
     })
     .then( response => response.json())
     .then(json=> {
-        console.log(json)
 		if(json.statusCode==400) alert("Error")
 		else {
 			//loading gif just in case
@@ -89,23 +87,23 @@ const setUpAddCustomTrick = () => {
 }
 }
 
-const disableAddTrick = () => {
+function disableAddTrick() {
 	if (document.querySelector('#trickNameArea').value.length == 0 && document.querySelector('#trickDescriptionArea').value.length == 0) document.querySelector('#addButton').disabled = true
 	if (document.querySelector('#trickNameArea').value.length != 0 && document.querySelector('#trickDescriptionArea').value.length != 0) document.querySelector('#addButton').disabled = false
 }
 
-const disableAddCombo = () => {
+function disableAddCombo() {
 	if (document.querySelector('#comboIntoSelect').value == "select a trick") document.querySelector('#addComboButton').disabled = true
 	if (document.querySelector('#comboIntoSelect').value != "select a trick") document.querySelector('#addComboButton').disabled = false
 }
-const updateTricks = () => {
+
+async function updateTricks() {
 		fetch(url+'/getAllTricks', {
         method:'POST',
         body:JSON.stringify({idUser:localStorage.getItem('idUser')})
     })
-    .then( response => response.json())
+    .then(response => response.json())
     .then(json=> {
-        console.log(json)
 		if(json.statusCode==400) alert("Error: Unable to load tricks")
 		else {//Tricks loaded
 			localStorage.setItem('tricks', JSON.stringify(json.tricks))
@@ -177,7 +175,22 @@ const updateTricks = () => {
 						deleteButton.setAttribute('type','button')
 						deleteButton.setAttribute('class','btn badge badge-danger deleteTrickButton')
 						deleteButton.setAttribute('style','margin-left: 3px;margin-right: 3px;')
+						deleteButton.setAttribute('data-dismiss','modal')
 						deleteButton.innerText = 'x'
+						deleteButton.onclick = e=> {
+							fetch(url+'/removeCustomTrick', {
+						        method:'POST',
+								body:JSON.stringify({idTrick:trick.idTrick})
+						    })
+						    .then( response => response.json())
+						    .then(json=> {
+						        console.log(json)
+								if(json.statusCode==400) alert("Error: deleting trick failed")
+								else {
+									updateTricks()
+								}
+						    })
+						}
 						headerDiv.appendChild(deleteButton)
 					}
 					//status Button
@@ -185,22 +198,40 @@ const updateTricks = () => {
 					statusButton.setAttribute('type','button')
 					statusButton.setAttribute('class','btn badge badge-warning changeStatusButton')
 					statusButton.setAttribute('style','margin-left: 3px;margin-right: 3px;')
-					const statusNum = getStatusFromStorage(trick.idTrick)
+					let statusNum = getStatusFromStorage(trick.idTrick)
 					if (statusNum == 2) statusButton.innerText = "Mastered"
 					if (statusNum == 1) statusButton.innerText = "Working On"
 					else statusButton.innerText = "Not Learned"
+					//change the status when you click on it
+					statusButton.onclick = e=> {
+						fetch(url+'/changeStatus', {
+					        method:'POST',
+							body:JSON.stringify({idUser:localStorage.getItem('idUser'),idTrick:trick.idTrick,status:(getStatusFromStorage(trick.idTrick)+1)%3})
+					    })
+					    .then( response => response.json())
+					    .then(json=> {
+					        console.log(json)
+							if(json.statusCode==400) alert("Error: changing status failed")
+							else {
+								updateStatus()
+								let newStatNum = json.status.status
+								if (newStatNum == 2) statusButton.innerText = "Mastered"
+								if (newStatNum == 1) statusButton.innerText = "Working On"
+								if (newStatNum == 0) statusButton.innerText = "Not Learned"
+							}
+					    })
+					}
 					headerDiv.appendChild(statusButton)
 					
 					setCombosInView(trick)			
 				}
 			}
 		}
+		fillComboTricks()
     })
-	//after you update the tricks, fill the combo tricks
-	fillComboTricks()
 }
 
-const getStatusFromStorage = (idTrick) => {
+function getStatusFromStorage(idTrick) {
 	const list = JSON.parse(localStorage.getItem('status'))
 	for (var i = 0; i < list.length; i++) {
 		if (idTrick == list[i].idTrick) return list[i].status
@@ -208,14 +239,13 @@ const getStatusFromStorage = (idTrick) => {
 	return 0
 }
 
-const updateStatus = () => {
+function updateStatus() {
 	fetch(url+'/getUserStatus', {
         method:'POST',
 		body:JSON.stringify({idUser:localStorage.getItem('idUser')})
     })
     .then( response => response.json())
     .then(json=> {
-        console.log(json)
 		if(json.statusCode==400) alert("Error: getting statuss failed")
 		else {
 			localStorage.setItem('status', JSON.stringify(json.status))
@@ -223,7 +253,7 @@ const updateStatus = () => {
     })
 }
 
-const setCombosInView = (trick) => {
+function setCombosInView(trick) {
 	//set combos
 	const comboDiv = document.querySelector('#comboDiv')
 	//clear comboDiv
@@ -237,12 +267,30 @@ const setCombosInView = (trick) => {
 		comboButton.setAttribute('type',"button")
 		comboButton.setAttribute('class',"btn badge badge-primary comboButtons")
 		comboButton.setAttribute('style','margin-left: 5px;margin-right: 5px;')
-		comboButton.innerText = getTrickFromID(comboList[i].comboInto).trickName + " x"
+		const trickInto = getTrickFromID(comboList[i].comboInto)
+		comboButton.innerText = trickInto.trickName + " x"
+		//set remove combo
+		comboButton.onclick = e=> {
+			fetch(url+'/deleteCombo', {
+	            method:'POST',
+	            body:JSON.stringify({comboFrom:trick.idTrick,comboInto:trickInto.idTrick})
+	        })
+	        .then( response => response.json())
+	        .then(json=> {
+				if(json.statusCode==400) alert("Error: couldn't delete combo'")
+				else {
+					//remove child
+					comboDiv.removeChild(comboButton)
+					//update combos
+					updateCombos()
+				}
+	        })
+		}
 		comboDiv.appendChild(comboButton)
 	}
 }
 
-const getComboIntos = (id) => {
+function getComboIntos(id) {
 	const list = JSON.parse(localStorage.getItem('combos'))
 	const queryList = []
 	for (var i = 0; i < list.length; i++) {
@@ -251,13 +299,12 @@ const getComboIntos = (id) => {
 	return queryList
 }
 
-const updateCombos = () => {
+function updateCombos() {
 	fetch(url+'/getListOfCombos', {
             method:'GET'
         })
         .then( response => response.json())
         .then(json=> {
-            console.log(json)
 			if(json.statusCode==400) alert("Error: getting combos failed")
 			else {
 				localStorage.setItem('combos', JSON.stringify(json.combos))
@@ -265,14 +312,13 @@ const updateCombos = () => {
         })
 }
 
-const getTrickFromID = (id) => {
+function getTrickFromID(id) {
 	const list = JSON.parse(localStorage.getItem('tricks'))
 	for (var i = 0; i < list.length; i++) {
 		if (id == list[i].idTrick){
 			return list[i]
 		}
 	}
-	console.log(localStorage.getItem('tricks'))
 	return null
 }
 

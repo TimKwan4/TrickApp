@@ -42,6 +42,12 @@ const login = () => {
         .then(json=> {
             console.log(json)
 			if(json.statusCode==400) alert("Error: Name Doesn't Exist")
-			else {localStorage.setItem('userName', document.querySelector('#nameInput').value);localStorage.setItem('idUser', json.user.idUser);window.location.href='trickPage.html';}
+			else {
+				let oldName = document.querySelector('#nameInput').value
+				let newName = oldName.charAt(0).toUpperCase() + oldName.slice(1).toLowerCase()
+				localStorage.setItem('userName', newName);
+				localStorage.setItem('idUser', json.user.idUser);
+				window.location.href='trickPage.html';
+				}
         })
 }

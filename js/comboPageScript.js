@@ -12,7 +12,6 @@ window.onload = () => {
 		let isWorkingOn = document.querySelector('#inlineCheckbox2').checked
 		let isMastered = document.querySelector('#inlineCheckbox3').checked
 		
-		let comboString = ""
 		let queryedTricks = []
 		
 		//if combo length has something, or if any of the status's are checked
@@ -42,22 +41,49 @@ window.onload = () => {
 				}
 			}
 			//add trick combos until you hit max length or until you cannot combo anymore
+			const trickDiv = document.querySelector('#listOfTricksDiv')
+			while(trickDiv.firstElementChild){
+				trickDiv.removeChild(trickDiv.firstElementChild)
+			}
 			let counter = 0
 			let randInd = Math.trunc(Math.random()*queryedTricks.length)
 			let queryedCombos = getComboListFromTrick(queryedTricks, comboList,queryedTricks[randInd].idTrick)
-			comboString = comboString.concat(queryedTricks[randInd].idTrick)
+			const firstTrick = document.createElement('button')
+			firstTrick.setAttribute('type','button')
+			firstTrick.setAttribute('class','btn btn-info')
+			firstTrick.setAttribute('data-toggle','modal')
+			firstTrick.setAttribute('data-target','#trickViewModal')
+			firstTrick.innerHTML = queryedTricks[randInd].trickName
+			firstTrick.onclick = e=> {
+				document.querySelector('#trickViewModalLabel').innerHTML = queryedTricks[randInd].trickName
+				document.querySelector('#trickDesBody').innerHTML = queryedTricks[randInd].trickDes
+			}
+			trickDiv.appendChild(firstTrick)
 			counter++
 			while(counter < document.querySelector('#comboLength').value && queryedCombos.length > 0){
 				//choose a random combo
 				randInd = Math.trunc(Math.random()*queryedCombos.length)
 				//add trick
-				comboString = comboString.concat(queryedCombos[randInd].comboInto)
+				let span = document.createElement('span')
+				span.innerHTML = ','
+				trickDiv.appendChild(span)
+				let nextTrick = document.createElement('button')
+				nextTrick.setAttribute('type','button')
+				nextTrick.setAttribute('class','btn btn-info')
+				nextTrick.setAttribute('data-toggle','modal')
+				nextTrick.setAttribute('data-target','#trickViewModal')
+				let trick = getTrickFromID(queryedCombos[randInd].comboInto)
+				nextTrick.innerHTML = trick.trickName
+				nextTrick.onclick = e=> {
+					document.querySelector('#trickViewModalLabel').innerHTML = trick.trickName
+					document.querySelector('#trickDesBody').innerHTML = trick.trickDes
+				}
+				trickDiv.appendChild(nextTrick)
 				//update queryedCombos
 				queryedCombos = getComboListFromTrick(queryedTricks, comboList,queryedCombos[randInd].comboInto)
 				//update counter
 				counter++
 			}
-			document.querySelector('#listOfTricksDiv').innerHTML = comboString
 		}else{
 			alert('Make sure to select a combo length and status')
 		}
